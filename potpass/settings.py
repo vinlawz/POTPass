@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'accounts',
     'core',
     'reception',
+    'visitor',
 
     # Third-party
     'crispy_forms',

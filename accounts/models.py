@@ -8,7 +8,11 @@ class CustomUser(AbstractUser):
         ("receptionist", "Receptionist"),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    assigned_location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True, blank=True)
+    assigned_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='assigned_users')
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
+
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "Users"

@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - {{ user.assigned_location.name }} - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="main-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-sign-in-alt fa-3x mb-3" style="color: var(--primary-color);"></i>
+                <h2>{{ title }}</h2>
+                {% if visitor %}
+                    <p class="mb-0">Visitor: <strong>{{ visitor.full_name }}</strong></p>
+                    <p class="mb-0">Phone: {{ visitor.phone }}</p>
+                    {% if visitor.organization %}
+                        <p class="mb-0">Organization: {{ visitor.organization }}</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if visitor %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-user"></i>
+                        <strong>Visitor Information:</strong><br>
+                        Name: {{ visitor.full_name }}<br>
+                        Phone: {{ visitor.phone }}<br>
+                        {% if visitor.organization %}Organization: {{ visitor.organization }}{% endif %}
+                    </div>
+                {% endif %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.purpose.id_for_label }}" class="form-label">
+                            <i class="fas fa-briefcase"></i> Purpose of Visit *
+                        </label>
+                        {{ form.purpose }}
+                        {% if form.purpose.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.purpose.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.host.id_for_label }}" class="form-label">
+                            <i class="fas fa-user-tie"></i> Host Person/Department
+                        </label>
+                        {{ form.host }}
+                        {% if form.host.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.host.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.expected_duration.id_for_label }}" class="form-label">
+                            <i class="fas fa-clock"></i> Expected Duration
+                        </label>
+                        {{ form.expected_duration }}
+                        {% if form.expected_duration.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.expected_duration.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">
+                            <i class="fas fa-sticky-note"></i> Additional Notes
+                        </label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.notes.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>Location:</strong> {{ user.assigned_location.name }} ({{ user.assigned_location.code }})
+                    <br>
+                    <i class="fas fa-clock"></i>
+                    <strong>Check-in Time:</strong> {% now "F d, Y H:i" %}
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Check In Visitor
+                    </button>
+                    <a href="{% url 'visitor:check_in' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Check-In
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus on purpose field
+    const purposeField = document.querySelector('#{{ form.purpose.id_for_label }}');
+    if (purposeField) {
+        purposeField.focus();
+    }
+
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking In...';
+        
+        // Validate required fields
+        const requiredField = form.querySelector('[name="purpose"]');
+        let isValid = true;
+        
+        if (requiredField && !requiredField.value.trim()) {
+            isValid = false;
+            requiredField.classList.add('is-invalid');
+        } else {
+            requiredField.classList.remove('is-invalid');
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in the purpose of visit.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Check In Visitor';
+            return;
+        }
+    });
+
+    // Quick purpose suggestions
+    const purposeFieldElement = document.querySelector('#{{ form.purpose.id_for_label }}');
+    const commonPurposes = [
+        'Meeting', 'Interview', 'Delivery', 'Maintenance', 'Training',
+        'Consultation', 'Sales', 'Support', 'Installation', 'Inspection'
+    ];
+    
+    // Create datalist for suggestions
+    const datalist = document.createElement('datalist');
+    datalist.id = 'purpose-suggestions';
+    commonPurposes.forEach(purpose => {
+        const option = document.createElement('option');
+        option.value = purpose;
+        datalist.appendChild(option);
+    });
+    purposeFieldElement.setAttribute('list', 'purpose-suggestions');
+    purposeFieldElement.parentNode.appendChild(datalist);
+});
+</script>
+
+<style>
+.is-invalid {
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.auth-card {
+    max-width: 800px;
+}
+
+.datalist {
+    display: none;
+}
+</style>
+{% endblock %}

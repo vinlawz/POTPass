@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}Visitors - {{ user.assigned_location.name }} - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-users"></i> Visitor Management
+                    </h1>
+                    <p class="mb-0">
+                        <span class="badge bg-info">{{ user.assigned_location.name }}</span>
+                        <span class="badge bg-primary ms-2">{{ user.assigned_location.code }}</span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'visitor:visitor_register' %}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Register Visitor
+                        </a>
+                        <a href="{% url 'visitor:reports' %}" class="btn btn-success">
+                            <i class="fas fa-chart-line"></i> Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Form -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        {{ form.search_type }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.query }}
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list"></i> Visitor Records
+                        <span class="badge bg-primary ms-2">{{ total_visitors }} Total</span>
+                    </h5>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'visitor:visitor_register' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> New Visitor
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if page_obj %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Organization</th>
+                                    <th>ID Number</th>
+                                    <th>Total Visits</th>
+                                    <th>Last Visit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for visitor in page_obj %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ visitor.full_name }}</strong>
+                                            {% if visitor.email %}
+                                                <br><small class="text-muted">{{ visitor.email }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ visitor.phone }}</td>
+                                        <td>{{ visitor.organization|default:"-" }}</td>
+                                        <td>{{ visitor.id_number|default:"-" }}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ visitor.total_visits }}</span>
+                                        </td>
+                                        <td>
+                                            {% if visitor.last_visit %}
+                                                {{ visitor.last_visit|date:"M d, Y H:i" }}
+                                            {% else %}
+                                                <span class="text-muted">No visits</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'visitor:visit_create' visitor.id %}" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   title="Check in visitor"
+                                                   aria-label="Check in visitor">
+                                                    <i class="fas fa-sign-in-alt"></i>
+                                                </a>
+                                                <a href="{% url 'visitor:visitor_register' %}?visitor_id={{ visitor.id }}" 
+                                                   class="btn btn-sm btn-outline-secondary" 
+                                                   title="Edit visitor"
+                                                   aria-label="Edit visitor">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                        <nav aria-label="Visitor pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li>
+                                        <a href="?page={{ page_obj.previous_page_number }}" 
+                                           class="page-link">
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item">
+                                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                    <li>
+                                        <a href="?page={{ page_obj.next_page_number }}" 
+                                           class="page-link">
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h4>No visitors found</h4>
+                        <p class="text-muted">
+                            {% if request.GET.query %}
+                                No visitors match your search criteria. Try different search terms.
+                            {% else %}
+                                No visitors registered yet. Start by registering your first visitor.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'visitor:visitor_register' %}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Register First Visitor
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    cursor: pointer;
+}
+
+.badge {
+    font-weight: 600;
+}
+
+.btn-group .btn {
+    border-radius: 0.375rem;
+}
+
+.pagination .page-link {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+</style>
+{% endblock %}

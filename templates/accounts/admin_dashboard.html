@@ -60,7 +60,7 @@
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h3 class="stat-number">{{ total_users|subtract:receptionists.count|subtract:1 }}</h3>
+                            <h3 class="stat-number">{{ other_users }}</h3>
                             <p class="mb-0">Other Users</p>
                         </div>
                         <i class="fas fa-user fa-2x text-info opacity-50"></i>
@@ -104,9 +104,13 @@
                                         </td>
                                         <td>{{ user.get_full_name|default:"-" }}</td>
                                         <td>
-                                            <span class="badge bg-{{ 'primary' if user.role == 'admin' else 'success' if user.role == 'receptionist' else 'secondary' }}">
-                                                {{ user.get_role_display }}
-                                            </span>
+                                            {% if user.role == 'admin' %}
+                                                <span class="badge bg-primary">{{ user.get_role_display }}</span>
+                                            {% elif user.role == 'receptionist' %}
+                                                <span class="badge bg-success">{{ user.get_role_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ user.get_role_display }}</span>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             {% if user.assigned_location %}

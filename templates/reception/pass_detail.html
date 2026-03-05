@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Pass {{ pass.pass_number }} - {{ user.assigned_location.name }} - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-id-card"></i> Pass {{ pass.pass_number }}
+                    </h1>
+                    <p class="mb-0">
+                        <span class="badge bg-info">{{ user.assigned_location.name }}</span>
+                        {% if pass.status == 'active' %}
+                            <span class="badge bg-success ms-2">Active</span>
+                        {% elif pass.status == 'completed' %}
+                            <span class="badge bg-primary ms-2">Completed</span>
+                        {% else %}
+                            <span class="badge bg-secondary ms-2">Cancelled</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    {% if can_edit %}
+                        <a href="{% url 'reception:pass_update' pass.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Pass
+                        </a>
+                    {% endif %}
+                    {% if pass.status == 'active' and can_edit %}
+                        <a href="{% url 'reception:pass_checkout' pass.pk %}" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Check Out
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'reception:pass_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Visitor Information -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-user text-primary"></i> Visitor Information
+                        </h5>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Full Name:</label>
+                                <span>{{ pass.visitor_name }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Visitor Type:</label>
+                                <span class="badge bg-info">{{ pass.get_visitor_type_display }}</span>
+                            </div>
+                            {% if pass.visitor_email %}
+                                <div class="info-item">
+                                    <label>Email:</label>
+                                    <span>{{ pass.visitor_email }}</span>
+                                </div>
+                            {% endif %}
+                            {% if pass.visitor_phone %}
+                                <div class="info-item">
+                                    <label>Phone:</label>
+                                    <span>{{ pass.visitor_phone }}</span>
+                                </div>
+                            {% endif %}
+                            {% if pass.company_name %}
+                                <div class="info-item">
+                                    <label>Company:</label>
+                                    <span>{{ pass.company_name }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visit Information -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-info-circle text-info"></i> Visit Information
+                        </h5>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Purpose:</label>
+                                <span>{{ pass.purpose }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Host:</label>
+                                <span>{{ pass.host_name }}</span>
+                            </div>
+                            {% if pass.host_department %}
+                                <div class="info-item">
+                                    <label>Department:</label>
+                                    <span>{{ pass.host_department }}</span>
+                                </div>
+                            {% endif %}
+                            {% if pass.expected_departure %}
+                                <div class="info-item">
+                                    <label>Expected Departure:</label>
+                                    <span>{{ pass.expected_departure|date:"F d, Y H:i" }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timing Information -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-clock text-success"></i> Timing Information
+                        </h5>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Check-in Time:</label>
+                                <span>{{ pass.check_in_time|date:"F d, Y H:i" }}</span>
+                            </div>
+                            {% if pass.check_out_time %}
+                                <div class="info-item">
+                                    <label>Check-out Time:</label>
+                                    <span>{{ pass.check_out_time|date:"F d, Y H:i" }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Duration:</label>
+                                    <span>{{ pass.duration }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="info-item">
+                                <label>Status:</label>
+                                <span>
+                                    {% if pass.status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif pass.status == 'completed' %}
+                                        <span class="badge bg-primary">Completed</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Cancelled</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-cog text-warning"></i> System Information
+                        </h5>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Pass Number:</label>
+                                <span class="badge bg-primary">{{ pass.pass_number }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Branch:</label>
+                                <span>{{ pass.location.name }} ({{ pass.location.code }})</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Created By:</label>
+                                <span>{{ pass.created_by.get_full_name|default:pass.created_by.username }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Created At:</label>
+                                <span>{{ pass.created_at|date:"F d, Y H:i" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if pass.notes %}
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-sticky-note text-warning"></i> Additional Notes
+                            </h5>
+                            <p>{{ pass.notes }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-bolt text-warning"></i> Quick Actions
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                {% if can_edit %}
+                                    <a href="{% url 'reception:pass_update' pass.pk %}" class="btn btn-primary w-100">
+                                        <i class="fas fa-edit"></i> Edit Pass
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-outline-secondary w-100" disabled>
+                                        <i class="fas fa-edit"></i> Edit Pass
+                                    </button>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                {% if pass.status == 'active' and can_edit %}
+                                    <a href="{% url 'reception:pass_checkout' pass.pk %}" class="btn btn-danger w-100">
+                                        <i class="fas fa-sign-out-alt"></i> Check Out
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-outline-secondary w-100" disabled>
+                                        <i class="fas fa-sign-out-alt"></i> Check Out
+                                    </button>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{% url 'reception:pass_list' %}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-list"></i> All Passes
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <button class="btn btn-outline-secondary w-100" onclick="window.print()">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.info-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--light-bg);
+}
+
+.info-item label {
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin-bottom: 0.25rem;
+}
+
+.info-item span {
+    font-weight: 500;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - {{ user.assigned_location.name }} - POTPass{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-id-card fa-3x mb-3" style="color: var(--accent-color);"></i>
+            <h2>{{ title }}</h2>
+            <p>{{ action }} visitor pass for {{ user.assigned_location.name }}</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Visitor Information -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-user text-primary"></i> Visitor Information
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="visitor_name" class="form-label">
+                            <i class="fas fa-user"></i> Full Name *
+                        </label>
+                        <input type="text" class="form-control" id="visitor_name" name="visitor_name" 
+                               value="{{ pass.visitor_name|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="visitor_type" class="form-label">
+                            <i class="fas fa-tag"></i> Visitor Type
+                        </label>
+                        <select class="form-select" id="visitor_type" name="visitor_type">
+                            <option value="guest" {% if pass.visitor_type == 'guest' %}selected{% endif %}>Guest</option>
+                            <option value="contractor" {% if pass.visitor_type == 'contractor' %}selected{% endif %}>Contractor</option>
+                            <option value="delivery" {% if pass.visitor_type == 'delivery' %}selected{% endif %}>Delivery</option>
+                            <option value="staff" {% if pass.visitor_type == 'staff' %}selected{% endif %}>Staff</option>
+                            <option value="other" {% if pass.visitor_type == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="visitor_email" class="form-label">
+                            <i class="fas fa-envelope"></i> Email Address
+                        </label>
+                        <input type="email" class="form-control" id="visitor_email" name="visitor_email" 
+                               value="{{ pass.visitor_email|default:'' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="visitor_phone" class="form-label">
+                            <i class="fas fa-phone"></i> Phone Number
+                        </label>
+                        <input type="tel" class="form-control" id="visitor_phone" name="visitor_phone" 
+                               value="{{ pass.visitor_phone|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="company_name" class="form-label">
+                        <i class="fas fa-building"></i> Company/Organization
+                    </label>
+                    <input type="text" class="form-control" id="company_name" name="company_name" 
+                           value="{{ pass.company_name|default:'' }}">
+                </div>
+            </div>
+
+            <!-- Visit Information -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-info-circle text-info"></i> Visit Information
+                </h5>
+                
+                <div class="mb-3">
+                    <label for="purpose" class="form-label">
+                        <i class="fas fa-bullseye"></i> Purpose of Visit *
+                    </label>
+                    <textarea class="form-control" id="purpose" name="purpose" rows="3" required>{{ pass.purpose|default:'' }}</textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="host_name" class="form-label">
+                            <i class="fas fa-user-tie"></i> Person Being Visited *
+                        </label>
+                        <input type="text" class="form-control" id="host_name" name="host_name" 
+                               value="{{ pass.host_name|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="host_department" class="form-label">
+                            <i class="fas fa-sitemap"></i> Department
+                        </label>
+                        <input type="text" class="form-control" id="host_department" name="host_department" 
+                               value="{{ pass.host_department|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="expected_departure" class="form-label">
+                        <i class="fas fa-clock"></i> Expected Departure Time
+                    </label>
+                    <input type="datetime-local" class="form-control" id="expected_departure" name="expected_departure" 
+                           value="{{ pass.expected_departure|default:'' }}">
+                </div>
+            </div>
+
+            <!-- Additional Notes -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-sticky-note text-warning"></i> Additional Notes
+                </h5>
+                
+                <div class="mb-3">
+                    <label for="notes" class="form-label">
+                        <i class="fas fa-comment"></i> Notes
+                    </label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2">{{ pass.notes|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Location Information (Read-only) -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-map-marker-alt text-success"></i> Location Information
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-building"></i> Branch
+                        </label>
+                        <input type="text" class="form-control" value="{{ user.assigned_location.name }}" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-tag"></i> Branch Code
+                        </label>
+                        <input type="text" class="form-control" value="{{ user.assigned_location.code }}" readonly>
+                    </div>
+                </div>
+                <small class="text-muted">Pass will be automatically assigned to your branch location.</small>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ action }} Pass
+                </button>
+                <a href="{% url 'reception:pass_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on first input field
+    const firstInput = document.querySelector('input:not([readonly])');
+    if (firstInput) {
+        firstInput.focus();
+    }
+
+    // Add confirmation before leaving if form is changed
+    let formChanged = false;
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', () => {
+            formChanged = true;
+        });
+    });
+
+    // Add warning before navigating away if form has changes
+    window.addEventListener('beforeunload', (e) => {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+});
+
+// Add form validation feedback
+document.querySelector('form').addEventListener('submit', function(e) {
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-error';
+        alertDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please fill in all required fields.';
+        
+        const existingAlert = this.querySelector('.alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        this.insertBefore(alertDiv, this.firstChild);
+        
+        // Scroll to top of form
+        this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+});
+</script>
+
+<style>
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-control.is-invalid {
+    border-color: var(--secondary-color);
+}
+
+.is-invalid:focus {
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.auth-card {
+    max-width: 800px;
+}
+
+h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--light-bg);
+}
+</style>
+{% endblock %}

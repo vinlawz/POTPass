@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-user-circle"></i> My Profile
+                    </h1>
+                    <p class="mb-0">View and manage your personal information</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{% url 'accounts:profile_update' %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Profile Information -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-user text-primary"></i> Personal Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Username:</strong> {{ user.username }}</p>
+                                <p><strong>First Name:</strong> {{ user.first_name|default:"Not set" }}</p>
+                                <p><strong>Last Name:</strong> {{ user.last_name|default:"Not set" }}</p>
+                                <p><strong>Email:</strong> {{ user.email }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Role:</strong> 
+                                    {% if user.role == 'admin' %}
+                                        <span class="badge bg-primary">{{ role_display }}</span>
+                                    {% elif user.role == 'receptionist' %}
+                                        <span class="badge bg-success">{{ role_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ role_display }}</span>
+                                    {% endif %}
+                                </p>
+                                <p><strong>Location:</strong> {{ location.name|default:"Not assigned" }}</p>
+                                <p><strong>Member Since:</strong> {{ member_since|date:"F d, Y" }}</p>
+                                <p><strong>Last Login:</strong> {{ last_login|date:"F d, Y H:i"|default:"Never" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Statistics -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-bar text-info"></i> Account Activity
+                        </h5>
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-card">
+                                    <h4 class="stat-number text-primary">{{ user.date_joined|timesince }}</h4>
+                                    <p class="mb-0">Time as Member</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-card">
+                                    <h4 class="stat-number text-success">{{ user.last_login|timesince|default:"Never" }}</h4>
+                                    <p class="mb-0">Last Login</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="stat-card">
+                                    <h4 class="stat-number text-warning">{{ role_display }}</h4>
+                                    <p class="mb-0">Current Role</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-bolt text-warning"></i> Quick Actions
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'accounts:profile_update' %}" class="btn btn-primary w-100">
+                                    <i class="fas fa-edit"></i> Update Profile
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                                </a>
+                            </div>
+                            {% if user.role == 'admin' %}
+                                <div class="col-md-6 mb-3">
+                                    <a href="{% url 'accounts:admin_dashboard' %}" class="btn btn-success w-100">
+                                        <i class="fas fa-user-shield"></i> Admin Panel
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if user.role == 'receptionist' %}
+                                <div class="col-md-6 mb-3">
+                                    <a href="{% url 'accounts:reception_dashboard' %}" class="btn btn-info w-100">
+                                        <i class="fas fa-concierge-bell"></i> Reception
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <div class="col-md-6 mb-3">
+                                <button class="btn btn-outline-secondary w-100" onclick="showPasswordChange()">
+                                    <i class="fas fa-key"></i> Change Password
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Profile Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <div class="avatar-circle mx-auto">
+                                <i class="fas fa-user fa-4x"></i>
+                            </div>
+                        </div>
+                        <h5>{{ user.get_full_name|default:user.username }}</h5>
+                        <p class="text-muted">{{ role_display }}</p>
+                        {% if location %}
+                            <p class="text-muted small">
+                                <i class="fas fa-map-marker-alt"></i> {{ location.name }}
+                            </p>
+                        {% endif %}
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="badge bg-primary">{{ user.username }}</span>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Security -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-shield-alt text-success"></i> Account Security
+                        </h6>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Email Verified</span>
+                                <span class="badge bg-success">Yes</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Two-Factor Auth</span>
+                                <span class="badge bg-secondary">Disabled</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Last Password Change</span>
+                                <span class="badge bg-info">Never</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary w-100" onclick="showSecuritySettings()">
+                            <i class="fas fa-cog"></i> Security Settings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-history text-secondary"></i> Recent Activity
+                        </h6>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">Just now</small>
+                                <p class="mb-0 small">Viewed profile</p>
+                            </div>
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">{{ last_login|timesince|default:"Never" }}</small>
+                                <p class="mb-0 small">Logged in</p>
+                            </div>
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">{{ member_since|timesince }}</small>
+                                <p class="mb-0 small">Account created</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+</style>
+
+<script>
+function showPasswordChange() {
+    alert('Password change feature coming soon! You will be able to update your password securely.');
+}
+
+function showSecuritySettings() {
+    alert('Security settings panel coming soon! This will include 2FA, login alerts, and more security options.');
+}
+
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stat cards on load
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            card.style.transition = 'all 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

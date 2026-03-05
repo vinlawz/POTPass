@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block title %}Location Details - {{ location.name }} - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-map-marker-alt"></i> {{ location.name }}
+                    </h1>
+                    <p class="mb-0">
+                        <span class="badge bg-info">{{ location.code }}</span>
+                        {% if location.is_active %}
+                            <span class="badge bg-success ms-2">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary ms-2">Inactive</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{% url 'core:location_update' location.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit Location
+                    </a>
+                    <a href="{% url 'core:location_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Location Information -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-info-circle text-primary"></i> Branch Information
+                        </h5>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Branch Name:</label>
+                                <span>{{ location.name }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Branch Code:</label>
+                                <span class="badge bg-info">{{ location.code }}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Status:</label>
+                                <span>
+                                    {% if location.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <label>Created:</label>
+                                <span>{{ location.created_at|date:"F d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Users -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-users text-success"></i> Assigned Users 
+                                <span class="badge bg-primary ms-2">{{ total_assigned }}</span>
+                            </h5>
+                            
+                            {% if assigned_users %}
+                                <div class="user-list">
+                                    {% for user in assigned_users %}
+                                        <div class="user-item">
+                                            <div class="user-avatar">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div class="user-info">
+                                                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                                                <div class="user-role">{{ user.get_role_display }}</div>
+                                                <div class="user-username">@{{ user.username }}</div>
+                                            </div>
+                                            <div class="user-actions">
+                                                {% if user.role == 'receptionist' %}
+                                                    <span class="badge bg-info">Reception</span>
+                                                {% elif user.role == 'admin' %}
+                                                    <span class="badge bg-warning">Admin</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                    <h5>No Users Assigned</h5>
+                                    <p class="text-muted">This location doesn't have any assigned users yet.</p>
+                                    <a href="{% url 'admin:auth_user_add' %}" class="btn btn-primary">
+                                        <i class="fas fa-user-plus"></i> Add User
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-bolt text-warning"></i> Quick Actions
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <a href="{% url 'core:location_update' location.pk %}" class="btn btn-primary w-100">
+                                        <i class="fas fa-edit"></i> Edit Location
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <a href="{% url 'admin:auth_user_add' %}?assigned_location={{ location.pk }}" class="btn btn-success w-100">
+                                        <i class="fas fa-user-plus"></i> Add User
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <a href="{% url 'core:location_list' %}" class="btn btn-outline-primary w-100">
+                                        <i class="fas fa-list"></i> All Locations
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-outline-secondary w-100" onclick="window.history.back()">
+                                        <i class="fas fa-arrow-left"></i> Go Back
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.info-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--light-bg);
+}
+
+.info-item label {
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin-bottom: 0.25rem;
+}
+
+.info-item span {
+    font-weight: 500;
+}
+
+.user-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--light-bg);
+    transition: background-color 0.3s ease;
+}
+
+.user-item:hover {
+    background-color: var(--light-bg);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex-grow: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.user-role {
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.25rem;
+}
+
+.user-username {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.user-actions {
+    margin-left: 0.5rem;
+}
+</style>
+{% endblock %}

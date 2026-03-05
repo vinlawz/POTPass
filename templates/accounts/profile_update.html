@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Profile - POTPass{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-user-edit fa-3x mb-3" style="color: var(--accent-color);"></i>
+            <h2>Update Profile</h2>
+            <p>Edit your personal information</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Personal Information -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-user text-primary"></i> Personal Information
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                            <i class="fas fa-user"></i> First Name
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.help_text %}
+                            <small class="help-text">{{ form.first_name.help_text }}</small>
+                        {% endif %}
+                        {% if form.first_name.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.first_name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                            <i class="fas fa-user"></i> Last Name
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.help_text %}
+                            <small class="help-text">{{ form.last_name.help_text }}</small>
+                        {% endif %}
+                        {% if form.last_name.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.last_name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-envelope text-info"></i> Contact Information
+                </h5>
+                
+                <div class="mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.help_text %}
+                        <small class="help-text">{{ form.email.help_text }}</small>
+                    {% endif %}
+                    {% if form.email.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.email.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Work Information -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-briefcase text-success"></i> Work Information
+                </h5>
+                
+                <div class="mb-3">
+                    <label for="{{ form.assigned_location.id_for_label }}" class="form-label">
+                        <i class="fas fa-map-marker-alt"></i> Assigned Location
+                    </label>
+                    {{ form.assigned_location }}
+                    {% if form.assigned_location.help_text %}
+                        <small class="help-text">{{ form.assigned_location.help_text }}</small>
+                    {% endif %}
+                    {% if form.assigned_location.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.assigned_location.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Account Information (Read-only) -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-shield-alt text-warning"></i> Account Information
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-user"></i> Username
+                        </label>
+                        <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                        <small class="help-text">Username cannot be changed</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-user-tag"></i> Role
+                        </label>
+                        <input type="text" class="form-control" value="{{ user.get_role_display }}" readonly>
+                        <small class="help-text">Role assigned by administrator</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Non-field errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+            </div>
+        </form>
+
+        <!-- Additional Options -->
+        <div class="mt-4 p-3 bg-light rounded">
+            <h6 class="mb-3">Additional Options</h6>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <button class="btn btn-sm btn-outline-warning w-100" onclick="showPasswordChange()">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <button class="btn btn-sm btn-outline-info w-100" onclick="showSecuritySettings()">
+                        <i class="fas fa-shield-alt"></i> Security Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus on first input field
+    const firstInput = document.querySelector('input:not([readonly])');
+    if (firstInput) {
+        firstInput.focus();
+    }
+
+    // Add confirmation before leaving if form is changed
+    let formChanged = false;
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', () => {
+            formChanged = true;
+        });
+    });
+
+    // Add warning before navigating away if form has changes
+    window.addEventListener('beforeunload', (e) => {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+});
+
+function showPasswordChange() {
+    alert('Password change feature coming soon! You will be able to update your password securely.');
+}
+
+function showSecuritySettings() {
+    alert('Security settings panel coming soon! This will include 2FA, login alerts, and more security options.');
+}
+
+// Add form validation feedback
+document.querySelector('form').addEventListener('submit', function(e) {
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-error';
+        alertDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please fill in all required fields.';
+        
+        const existingAlert = this.querySelector('.alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        this.insertBefore(alertDiv, this.firstChild);
+        
+        // Scroll to top of form
+        this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+});
+</script>
+
+<style>
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-control.is-invalid {
+    border-color: var(--secondary-color);
+}
+
+.is-invalid:focus {
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.auth-card {
+    max-width: 600px;
+}
+
+h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--light-bg);
+}
+</style>
+{% endblock %}

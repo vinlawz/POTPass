@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Check-In Visitor - {{ user.assigned_location.name }} - POTPass{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-sign-in-alt fa-3x mb-3" style="color: var(--success-color);"></i>
+            <h2>Visitor Check-In</h2>
+            <p>Search for visitor by phone number or ID</p>
+        </div>
+
+        <form method="post" id="checkin-form">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label for="{{ form.search_query.id_for_label }}" class="form-label">
+                    <i class="fas fa-search"></i> Search Visitor
+                </label>
+                <div class="input-group">
+                    {{ form.search_query }}
+                    <button class="btn btn-success" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+                {% if form.search_query.errors %}
+                    <div class="alert alert-error">
+                        {% for error in form.search_query.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+
+        <!-- Search Results -->
+        <div id="search-results" class="mt-4" style="display: none;">
+            <!-- Results will be loaded here via AJAX -->
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('{{ form.search_query.id_for_label }}');
+    const searchResults = document.getElementById('search-results');
+    let searchTimeout;
+
+    // Auto-suggest functionality
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            searchResults.style.display = 'none';
+            return;
+        }
+        
+        searchTimeout = setTimeout(function() {
+            fetch(`/visitor/search/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data.suggestions, query);
+                })
+                .catch(error => console.error('Search error:', error));
+        }, 300);
+    });
+
+    function displaySearchResults(suggestions, query) {
+        if (suggestions.length === 0) {
+            searchResults.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No visitor found with "${query}". 
+                    <a href="{% url 'visitor:visitor_create' %}?search=${encodeURIComponent(query)}" 
+                       class="btn btn-primary btn-sm ms-2">
+                        <i class="fas fa-plus"></i> Create New Visitor
+                    </a>
+                </div>
+            `;
+        } else {
+            let resultsHTML = '<h5 class="mb-3"><i class="fas fa-users"></i> Search Results</h5>';
+            resultsHTML += '<div class="list-group">';
+            
+            suggestions.forEach(function(visitor) {
+                resultsHTML += `
+                    <a href="#" class="list-group-item list-group-item-action visitor-result" 
+                       data-visitor-id="${visitor.id}" 
+                       data-visitor-name="${visitor.full_name}"
+                       data-visitor-phone="${visitor.phone}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${visitor.full_name}</strong>
+                                <br><small class="text-muted">${visitor.phone}</small>
+                            </div>
+                            <i class="fas fa-chevron-right text-muted"></i>
+                        </div>
+                    </a>
+                `;
+            });
+            
+            resultsHTML += '</div>';
+            searchResults.innerHTML = resultsHTML;
+            
+            // Add click handlers to visitor results
+            document.querySelectorAll('.visitor-result').forEach(function(element) {
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const visitorId = this.dataset.visitorId;
+                    const visitorName = this.dataset.visitorName;
+                    
+                    // Quick check-in confirmation
+                    if (confirm(`Check-in ${visitorName}?`)) {
+                        // Submit form with visitor selection
+                        const form = document.getElementById('checkin-form');
+                        const methodInput = document.createElement('input');
+                        methodInput.type = 'hidden';
+                        methodInput.name = 'visitor_id';
+                        methodInput.value = visitorId;
+                        form.appendChild(methodInput);
+                        form.submit();
+                    }
+                });
+            });
+        }
+        
+        searchResults.style.display = 'block';
+    }
+
+    // Form submission
+    document.getElementById('checkin-form').addEventListener('submit', function() {
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+    });
+});
+</script>
+
+<style>
+.visitor-result {
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.visitor-result:hover {
+    background-color: var(--accent-color);
+    color: white;
+    transform: translateX(5px);
+}
+
+.list-group {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.auth-card {
+    max-width: 600px;
+}
+</style>
+{% endblock %}

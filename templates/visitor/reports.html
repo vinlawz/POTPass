@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+
+{% block title %}Visitor Reports - {{ user.assigned_location.name }} - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-chart-line"></i> Visitor Reports & Analytics
+                    </h1>
+                    <p class="mb-0">
+                        <span class="badge bg-info">{{ user.assigned_location.name }}</span>
+                        <span class="badge bg-primary ms-2">{{ user.assigned_location.code }}</span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'visitor:reports' %}?format=csv" 
+                           class="btn btn-success" 
+                           title="Export to CSV"
+                           aria-label="Export visits to CSV">
+                            <i class="fas fa-file-csv"></i> Export CSV
+                        </a>
+                        <a href="{% url 'visitor:daily_summary' %}" 
+                           class="btn btn-primary" 
+                           title="Daily Summary"
+                           aria-label="View daily summary">
+                            <i class="fas fa-calendar-day"></i> Daily Summary
+                        </a>
+                        <a href="{% url 'visitor:bulk_check_in' %}" 
+                           class="btn btn-warning" 
+                           title="Bulk Check-In"
+                           aria-label="Bulk check-in multiple visitors">
+                            <i class="fas fa-users"></i> Bulk Check-In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stat-number text-primary">{{ total_visits }}</h3>
+                            <p class="mb-0">Total Visits</p>
+                        </div>
+                        <i class="fas fa-chart-bar fa-2x text-primary opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stat-number text-success">{{ active_visits }}</h3>
+                            <p class="mb-0">Active Visitors</p>
+                        </div>
+                        <i class="fas fa-user-check fa-2x text-success opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stat-number text-info">{{ completed_visits }}</h3>
+                            <p class="mb-0">Completed Visits</p>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x text-info opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stat-number text-warning">{{ avg_duration_minutes }}m</h3>
+                            <p class="mb-0">Avg Duration</p>
+                        </div>
+                        <i class="fas fa-clock fa-2x text-warning opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        {{ form.status }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.date_from }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form.date_to }}
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Peak Hours Analysis -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clock"></i> Peak Hours Analysis
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% for hour_data in peak_hours %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>{{ hour_data.hour }}:00 - {{ hour_data.hour }}:59</span>
+                                <div class="progress flex-grow-1 mx-3" style="height: 20px;">
+                                    <div class="progress-bar bg-primary" 
+                                         role="progressbar" 
+                                         style="width: {{ hour_data.visit_count|add:10|mul:5 }}%">
+                                        {{ hour_data.visit_count }} visits
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> Recent Activity
+                    <span class="badge bg-light text-dark ms-2">{{ page_obj.paginator.count }} Total</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if page_obj %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Visitor</th>
+                                    <th>Phone</th>
+                                    <th>Purpose</th>
+                                    <th>Check-In</th>
+                                    <th>Check-Out</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for visit in page_obj %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ visit.visitor.full_name }}</strong>
+                                            {% if visit.visitor.organization %}
+                                                <br><small class="text-muted">{{ visit.visitor.organization }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ visit.visitor.phone }}</td>
+                                        <td>{{ visit.purpose }}</td>
+                                        <td>{{ visit.check_in_time|date:"M d, H:i" }}</td>
+                                        <td>
+                                            {% if visit.check_out_time %}
+                                                {{ visit.check_out_time|date:"M d, H:i" }}
+                                            {% else %}
+                                                <span class="badge bg-warning">Active</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ visit.duration }}</span>
+                                        </td>
+                                        <td>
+                                            {% if visit.status == 'ACTIVE' %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% elif visit.status == 'COMPLETED' %}
+                                                <span class="badge bg-primary">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'visitor:visit_detail' visit.pk %}" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   title="View visit details"
+                                                   aria-label="View visit details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if visit.status == 'ACTIVE' %}
+                                                    <a href="{% url 'visitor:check_out' visit.pk %}" 
+                                                       class="btn btn-sm btn-outline-warning" 
+                                                       title="Check out visitor"
+                                                       aria-label="Check out visitor">
+                                                        <i class="fas fa-sign-out-alt"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                        <nav aria-label="Visit pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li>
+                                        <a href="?page={{ page_obj.previous_page_number }}" 
+                                           class="page-link">
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item">
+                                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                    <li>
+                                        <a href="?page={{ page_obj.next_page_number }}" 
+                                           class="page-link">
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h4>No visits found</h4>
+                        <p class="text-muted">Try adjusting your filters or date range.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    line-height: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-color);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+}
+</style>
+{% endblock %}

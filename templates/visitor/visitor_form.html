@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - {{ user.assigned_location.name }} - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="main-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-user-plus fa-3x mb-3" style="color: var(--primary-color);"></i>
+                <h2>{{ title }}</h2>
+                {% if search_query %}
+                    <p class="mb-0">Creating visitor for: <strong>{{ search_query }}</strong></p>
+                {% endif %}
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.full_name.id_for_label }}" class="form-label">
+                            <i class="fas fa-user"></i> Full Name *
+                        </label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.full_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.phone.id_for_label }}" class="form-label">
+                            <i class="fas fa-phone"></i> Phone Number *
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.phone.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            <i class="fas fa-envelope"></i> Email Address
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.id_number.id_for_label }}" class="form-label">
+                            <i class="fas fa-id-card"></i> ID Number
+                        </label>
+                        {{ form.id_number }}
+                        {% if form.id_number.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.id_number.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.gender.id_for_label }}" class="form-label">
+                            <i class="fas fa-venus-mars"></i> Gender
+                        </label>
+                        {{ form.gender }}
+                        {% if form.gender.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.gender.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">
+                            <i class="fas fa-birthday-cake"></i> Date of Birth
+                        </label>
+                        {{ form.date_of_birth }}
+                        {% if form.date_of_birth.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.date_of_birth.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.organization.id_for_label }}" class="form-label">
+                            <i class="fas fa-briefcase"></i> Organization/Company
+                        </label>
+                        {{ form.organization }}
+                        {% if form.organization.errors %}
+                            <div class="alert alert-error">
+                                {% for error in form.organization.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.address.id_for_label }}" class="form-label">
+                        <i class="fas fa-home"></i> Address
+                    </label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                        <div class="alert alert-error">
+                            {% for error in form.address.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>Location:</strong> {{ user.assigned_location.name }} ({{ user.assigned_location.code }})
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {{ title }}
+                    </button>
+                    <a href="{% url 'visitor:visitor_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Visitors
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-format phone number as user types
+    const phoneInput = document.querySelector('#{{ form.phone.id_for_label }}');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            let formattedValue = value;
+            
+            // Format phone number as (XXX) XXX-XXXX
+            if (value.length > 0) {
+                if (value.length <= 3) {
+                    formattedValue = '(' + value + ')';
+                } else if (value.length <= 6) {
+                    formattedValue = '(' + value.slice(0, 3) + ') ' + value.slice(3);
+                } else if (value.length <= 10) {
+                    formattedValue = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6);
+                }
+                
+                e.target.value = formattedValue;
+            }
+        });
+    }
+
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        // Validate required fields
+        const requiredFields = ['full_name', 'phone'];
+        let isValid = true;
+        
+        requiredFields.forEach(function(fieldName) {
+            const field = form.querySelector(`[name="${fieldName}"]`);
+            if (field && !field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields: Full Name and Phone Number');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> {{ title }}';
+            return;
+        }
+    });
+});
+</script>
+
+<style>
+.is-invalid {
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.auth-card {
+    max-width: 800px;
+}
+</style>
+{% endblock %}
