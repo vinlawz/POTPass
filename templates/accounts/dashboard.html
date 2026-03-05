@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </h1>
+                    <p class="mb-0">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-light text-dark fs-6">
+                        <i class="fas fa-user-tag"></i> {{ role }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- User Information -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-user-circle text-primary"></i> Your Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Username:</strong> {{ user.username }}</p>
+                                <p><strong>Email:</strong> {{ user.email }}</p>
+                                <p><strong>Full Name:</strong> {{ user.get_full_name|default:"Not set" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Role:</strong> {{ role }}</p>
+                                <p><strong>Location:</strong> {{ location.name|default:"Not assigned" }}</p>
+                                <p><strong>Member Since:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-bolt text-warning"></i> Quick Actions
+                        </h5>
+                        <div class="row">
+                            {% if user.role == 'admin' %}
+                                <div class="col-md-6 mb-3">
+                                    <a href="{% url 'admin_dashboard' %}" class="btn btn-primary w-100">
+                                        <i class="fas fa-user-shield"></i> Admin Dashboard
+                                    </a>
+                                </div>
+                            {% endif %}
+                            {% if user.role == 'receptionist' %}
+                                <div class="col-md-6 mb-3">
+                                    <a href="{% url 'reception_dashboard' %}" class="btn btn-success w-100">
+                                        <i class="fas fa-concierge-bell"></i> Reception Dashboard
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'admin:index' %}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-cog"></i> Admin Panel
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <button class="btn btn-outline-secondary w-100" onclick="editProfile()">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- System Status -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-heartbeat text-success"></i> System Status
+                        </h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Authentication</span>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Database</span>
+                            <span class="badge bg-success">Connected</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Services</span>
+                            <span class="badge bg-success">Running</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-history text-info"></i> Recent Activity
+                        </h5>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">Just now</small>
+                                <p class="mb-0">Logged into system</p>
+                            </div>
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">{{ user.last_login|date:"H:i" }}</small>
+                                <p class="mb-0">Last login activity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editProfile() {
+    // Show a simple alert for now - this can be expanded to a modal
+    alert('Profile editing feature coming soon! For now, you can update your profile through the admin panel.');
+}
+</script>
+{% endblock %}

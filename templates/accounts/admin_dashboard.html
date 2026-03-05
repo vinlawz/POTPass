@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-user-shield"></i> Admin Dashboard
+                    </h1>
+                    <p class="mb-0">System administration and management</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-warning text-dark fs-6">
+                        <i class="fas fa-crown"></i> Administrator
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stat-number">{{ total_users }}</h3>
+                            <p class="mb-0">Total Users</p>
+                        </div>
+                        <i class="fas fa-users fa-2x text-primary opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stat-number">{{ total_locations }}</h3>
+                            <p class="mb-0">Locations</p>
+                        </div>
+                        <i class="fas fa-map-marker-alt fa-2x text-success opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stat-number">{{ receptionists.count }}</h3>
+                            <p class="mb-0">Receptionists</p>
+                        </div>
+                        <i class="fas fa-concierge-bell fa-2x text-warning opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stat-number">{{ total_users|subtract:receptionists.count|subtract:1 }}</h3>
+                            <p class="mb-0">Other Users</p>
+                        </div>
+                        <i class="fas fa-user fa-2x text-info opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- User Management -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-users text-primary"></i> Recent Users
+                            </h5>
+                            <a href="{% url 'admin:index' %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-plus"></i> Add User
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Full Name</th>
+                                        <th>Role</th>
+                                        <th>Location</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in recent_users %}
+                                    <tr>
+                                        <td>
+                                            <i class="fas fa-user-circle text-muted"></i>
+                                            {{ user.username }}
+                                        </td>
+                                        <td>{{ user.get_full_name|default:"-" }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'primary' if user.role == 'admin' else 'success' if user.role == 'receptionist' else 'secondary' }}">
+                                                {{ user.get_role_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if user.assigned_location %}
+                                                {{ user.assigned_location.name }}
+                                            {% else %}
+                                                <span class="text-muted">Not assigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No users found</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Receptionists Management -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-concierge-bell text-success"></i> Receptionists
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for receptionist in receptionists %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-light">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="card-title mb-1">{{ receptionist.get_full_name|default:receptionist.username }}</h6>
+                                                <p class="card-text text-muted small mb-2">
+                                                    <i class="fas fa-envelope"></i> {{ receptionist.email }}
+                                                </p>
+                                                {% if receptionist.assigned_location %}
+                                                    <p class="card-text small mb-0">
+                                                        <i class="fas fa-map-marker-alt"></i> {{ receptionist.assigned_location.name }}
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                            <span class="badge bg-success">Receptionist</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12">
+                                <p class="text-muted text-center">No receptionists found</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions & System Info -->
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-bolt text-warning"></i> Quick Actions
+                        </h5>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'admin:index' %}" class="btn btn-primary">
+                                <i class="fas fa-cog"></i> Django Admin
+                            </a>
+                            <a href="{% url 'admin:auth_user_add' %}" class="btn btn-success">
+                                <i class="fas fa-user-plus"></i> Add New User
+                            </a>
+                            <a href="{% url 'admin:core_location_add' %}" class="btn btn-info">
+                                <i class="fas fa-map-marker-alt"></i> Add Location
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="exportData()">
+                                <i class="fas fa-download"></i> Export Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Information -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-info-circle text-info"></i> System Information
+                        </h5>
+                        <div class="small">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Django Version:</span>
+                                <span>6.0.3</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Python Version:</span>
+                                <span>3.13</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Database:</span>
+                                <span>SQLite</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Environment:</span>
+                                <span>Development</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-history text-secondary"></i> System Activity
+                        </h5>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">Just now</small>
+                                <p class="mb-0 small">Admin dashboard accessed</p>
+                            </div>
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">Today</small>
+                                <p class="mb-0 small">System running normally</p>
+                            </div>
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">Last week</small>
+                                <p class="mb-0 small">Database backup completed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportData() {
+    alert('Data export feature coming soon! This will allow you to export user data and system reports.');
+}
+
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stat cards on load
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 100);
+    });
+});
+</script>
+
+{% endblock %}

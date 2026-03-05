@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - POTPass{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-sign-in-alt fa-3x mb-3" style="color: var(--accent-color);"></i>
+            <h2>Welcome Back</h2>
+            <p>Sign in to your POTPass account</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="username" class="form-label">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <input type="text" class="form-control" name="username" id="username" required 
+                       placeholder="Enter your username" autocomplete="username">
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <div class="input-group">
+                    <input type="password" class="form-control" name="password" id="password" required 
+                           placeholder="Enter your password" autocomplete="current-password">
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">
+                        Remember me
+                    </label>
+                </div>
+                <a href="#" class="text-decoration-none">Forgot password?</a>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="mb-0">Don't have an account? 
+                <a href="{% url 'register' %}" class="text-decoration-none">
+                    <strong>Create one here</strong>
+                </a>
+            </p>
+        </div>
+
+        <!-- Quick Access Demo -->
+        <div class="mt-4 p-3 bg-light rounded">
+            <h6 class="text-center mb-3">Quick Demo Access</h6>
+            <div class="row text-center">
+                <div class="col-6">
+                    <button class="btn btn-sm btn-outline-info w-100" onclick="fillDemo('admin')">
+                        <i class="fas fa-user-shield"></i> Admin Demo
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button class="btn btn-sm btn-outline-success w-100" onclick="fillDemo('receptionist')">
+                        <i class="fas fa-concierge-bell"></i> Reception Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle icon
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+
+    // Focus on username field
+    document.getElementById('username').focus();
+
+    // Remember me functionality
+    const rememberMe = document.getElementById('rememberMe');
+    const usernameInput = document.getElementById('username');
+    
+    // Load saved username if remember me was checked
+    if (localStorage.getItem('rememberMe') === 'true') {
+        usernameInput.value = localStorage.getItem('savedUsername') || '';
+        rememberMe.checked = true;
+    }
+    
+    // Save username when remember me is checked
+    rememberMe.addEventListener('change', function() {
+        if (this.checked) {
+            localStorage.setItem('rememberMe', 'true');
+            localStorage.setItem('savedUsername', usernameInput.value);
+        } else {
+            localStorage.removeItem('rememberMe');
+            localStorage.removeItem('savedUsername');
+        }
+    });
+
+    // Update saved username when it changes
+    usernameInput.addEventListener('input', function() {
+        if (rememberMe.checked) {
+            localStorage.setItem('savedUsername', this.value);
+        }
+    });
+});
+
+// Demo access function
+function fillDemo(role) {
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    
+    if (role === 'admin') {
+        usernameInput.value = 'admin';
+        passwordInput.value = 'admin123';
+    } else if (role === 'receptionist') {
+        usernameInput.value = 'reception';
+        passwordInput.value = 'reception123';
+    }
+    
+    // Add visual feedback
+    const authCard = document.querySelector('.auth-card');
+    authCard.style.transform = 'scale(1.02)';
+    setTimeout(() => {
+        authCard.style.transform = 'scale(1)';
+    }, 200);
+}
+
+// Add enter key support for form submission
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON') {
+        document.querySelector('form').submit();
+    }
+});
+</script>
+{% endblock %}

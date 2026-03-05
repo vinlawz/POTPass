@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}Reception Dashboard - POTPass{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-concierge-bell"></i> Reception Dashboard
+                    </h1>
+                    <p class="mb-0">Welcome, {{ user.get_full_name|default:user.username }}!</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-success fs-6">
+                        <i class="fas fa-user-check"></i> Receptionist
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Information -->
+        {% if location %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="card-title mb-1">
+                            <i class="fas fa-map-marker-alt text-danger"></i> {{ location.name }}
+                        </h5>
+                        <p class="text-muted mb-0">{{ location.address|default:"No address provided" }}</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <small class="text-muted">Assigned Location</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> You are not assigned to any location. Please contact an administrator.
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                        <h6 class="card-title">Check In</h6>
+                        <p class="card-text small text-muted">Register new visitor</p>
+                        <button class="btn btn-primary btn-sm" onclick="checkInVisitor()">
+                            <i class="fas fa-plus"></i> Check In
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-minus fa-3x text-danger mb-3"></i>
+                        <h6 class="card-title">Check Out</h6>
+                        <p class="card-text small text-muted">Process visitor exit</p>
+                        <button class="btn btn-danger btn-sm" onclick="checkOutVisitor()">
+                            <i class="fas fa-minus"></i> Check Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-info mb-3"></i>
+                        <h6 class="card-title">Search</h6>
+                        <p class="card-text small text-muted">Find visitor records</p>
+                        <button class="btn btn-info btn-sm" onclick="searchVisitors()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar fa-3x text-success mb-3"></i>
+                        <h6 class="card-title">Reports</h6>
+                        <p class="card-text small text-muted">View daily reports</p>
+                        <button class="btn btn-success btn-sm" onclick="viewReports()">
+                            <i class="fas fa-chart-line"></i> Reports
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Today's Activity -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-calendar-day text-primary"></i> Today's Activity
+                            </h5>
+                            <span class="badge bg-primary">{{ "now"|date:"F d, Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="todayActivityTable">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Visitor Name</th>
+                                        <th>Purpose</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>09:15 AM</td>
+                                        <td>John Doe</td>
+                                        <td>Meeting</td>
+                                        <td><span class="badge bg-success">Checked In</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger">Check Out</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>10:30 AM</td>
+                                        <td>Jane Smith</td>
+                                        <td>Interview</td>
+                                        <td><span class="badge bg-secondary">Checked Out</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info">View Details</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>11:45 AM</td>
+                                        <td>Mike Johnson</td>
+                                        <td>Delivery</td>
+                                        <td><span class="badge bg-success">Checked In</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger">Check Out</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Visitors -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history text-secondary"></i> Recent Visitors
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-light">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="card-title mb-1">Sarah Williams</h6>
+                                                <p class="card-text text-muted small mb-2">
+                                                    <i class="fas fa-briefcase"></i> Business Meeting
+                                                </p>
+                                                <p class="card-text small mb-0">
+                                                    <i class="fas fa-clock"></i> 2 hours ago
+                                                </p>
+                                            </div>
+                                            <span class="badge bg-success">Active</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-light">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="card-title mb-1">Robert Brown</h6>
+                                                <p class="card-text text-muted small mb-2">
+                                                    <i class="fas fa-truck"></i> Package Delivery
+                                                </p>
+                                                <p class="card-text small mb-0">
+                                                    <i class="fas fa-clock"></i> 3 hours ago
+                                                </p>
+                                            </div>
+                                            <span class="badge bg-secondary">Completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Quick Stats -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-chart-pie text-info"></i> Today's Stats
+                        </h5>
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <h3 class="text-success">12</h3>
+                                <small class="text-muted">Check-ins</small>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <h3 class="text-danger">8</h3>
+                                <small class="text-muted">Check-outs</small>
+                            </div>
+                            <div class="col-6">
+                                <h3 class="text-primary">4</h3>
+                                <small class="text-muted">Currently Inside</small>
+                            </div>
+                            <div class="col-6">
+                                <h3 class="text-warning">2</h3>
+                                <small class="text-muted">Pending</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Messages -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-bell text-warning"></i> Notifications
+                        </h5>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">10 min ago</small>
+                                <p class="mb-0 small">New visitor at reception</p>
+                            </div>
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">1 hour ago</small>
+                                <p class="mb-0 small">Package delivered for John</p>
+                            </div>
+                            <div class="list-group-item px-0">
+                                <small class="text-muted">2 hours ago</small>
+                                <p class="mb-0 small">Meeting room A is available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help & Support -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-question-circle text-primary"></i> Quick Help
+                        </h5>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm" onclick="showHelp('checkin')">
+                                <i class="fas fa-info-circle"></i> How to Check In
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="showHelp('checkout')">
+                                <i class="fas fa-info-circle"></i> How to Check Out
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="showHelp('search')">
+                                <i class="fas fa-info-circle"></i> Search Visitors
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Quick action functions
+function checkInVisitor() {
+    alert('Check-in form will open here. This will allow you to register new visitors with their details.');
+}
+
+function checkOutVisitor() {
+    alert('Check-out form will open here. This will process visitor exit and record departure time.');
+}
+
+function searchVisitors() {
+    alert('Search interface will open here. You can search visitors by name, date, or purpose.');
+}
+
+function viewReports() {
+    alert('Reports dashboard will open here showing daily, weekly, and monthly statistics.');
+}
+
+function showHelp(topic) {
+    const helpTexts = {
+        'checkin': 'To check in a visitor: 1) Click the Check In button 2) Fill in visitor details 3) Assign purpose and destination 4) Issue visitor pass',
+        'checkout': 'To check out a visitor: 1) Find the visitor in the active list 2) Click Check Out 3) Confirm departure time 4) Collect visitor pass',
+        'search': 'To search visitors: 1) Click the Search button 2) Enter search criteria 3) View results 4) Click on visitor for details'
+    };
+    alert(helpTexts[topic] || 'Help content will be displayed here.');
+}
+
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Simulate real-time updates
+    setInterval(() => {
+        const badges = document.querySelectorAll('.badge');
+        badges.forEach(badge => {
+            if (badge.classList.contains('bg-success')) {
+                badge.style.animation = 'pulse 2s infinite';
+            }
+        });
+    }, 5000);
+});
+
+// Add CSS animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}
