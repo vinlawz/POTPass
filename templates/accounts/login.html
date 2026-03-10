@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Login - POTPass{% endblock %}
 
@@ -6,7 +7,9 @@
 <div class="main-container">
     <div class="auth-card">
         <div class="auth-header">
-            <i class="fas fa-sign-in-alt fa-3x mb-3" style="color: var(--accent-color);"></i>
+            <div class="mb-3">
+                <img src="{% static 'images/swahilipot_logo.png' %}" alt="SwahiliPot Logo" style="height: 60px;">
+            </div>
             <h2>Welcome Back</h2>
             <p>Sign in to your POTPass account</p>
         </div>

@@ -134,7 +134,7 @@ def profile_view(request):
 def profile_update_view(request):
     """Update user profile information"""
     if request.method == 'POST':
-        form = UserProfileUpdateForm(request.POST, instance=request.user)
+        form = UserProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your profile has been updated successfully!')

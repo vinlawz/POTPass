@@ -65,11 +65,12 @@ class UserProfileUpdateForm(forms.ModelForm):
     
     class Meta:
         model = CustomUser
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('first_name', 'last_name', 'email', 'profile_picture')
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'profile_picture': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -77,11 +78,13 @@ class UserProfileUpdateForm(forms.ModelForm):
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
         self.fields['email'].required = True
+        self.fields['profile_picture'].required = False
         
         # Add help texts
         self.fields['first_name'].help_text = 'Enter your first name'
         self.fields['last_name'].help_text = 'Enter your last name'
         self.fields['email'].help_text = 'Enter your email address'
+        self.fields['profile_picture'].help_text = 'Upload a profile picture (JPG, PNG, GIF)'
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

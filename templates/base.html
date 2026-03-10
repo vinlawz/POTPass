@@ -1,9 +1,13 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}POTPass - Management System{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -39,6 +43,7 @@
 
         .navbar {
             background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
             padding: 1rem 0;
@@ -78,6 +83,7 @@
 
         .auth-card {
             background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -213,6 +219,7 @@
 
         .dashboard-container {
             background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -268,14 +275,23 @@
 
         .navbar-nav .dropdown-menu {
             position: absolute;
-            z-index: 1050 !important;
+            z-index: 9999 !important;
         }
 
         .dropdown-menu {
-            z-index: 1060 !important;
+            z-index: 9999 !important;
             position: absolute;
             top: 100%;
             left: 0;
+        }
+
+        /* Ensure dropdown appears in front of all content */
+        .navbar {
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            z-index: 9999 !important;
         }
 
         @media (max-width: 768px) {
@@ -285,9 +301,10 @@
                 left: 0;
                 right: 0;
                 background: rgba(255, 255, 255, 0.98);
+                -webkit-backdrop-filter: blur(10px);
                 backdrop-filter: blur(10px);
                 border-radius: 0 0 16px 16px;
-                z-index: 1050 !important;
+                z-index: 9999 !important;
             }
         }
 
@@ -308,9 +325,10 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
+            {% load static %}
             <a class="navbar-brand" href="{% url 'accounts:dashboard' %}">
-                <i class="fas fa-shield-alt"></i>
-                POTPass
+                <img src="{% static 'images/swahilipot_logo.png' %}" alt="SwahiliPot Logo" style="height: 40px; margin-right: 10px;">
+                <strong>POTPass</strong>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

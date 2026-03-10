@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Visitor Management Dashboard - {{ user.assigned_location.name }} - POTPass{% endblock %}
 
@@ -8,13 +9,18 @@
         <div class="dashboard-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h1 class="mb-2">
-                        <i class="fas fa-users"></i> Visitor Management
-                    </h1>
-                    <p class="mb-0">
-                        <span class="badge bg-info">{{ user.assigned_location.name }}</span>
-                        <span class="badge bg-primary ms-2">{{ user.assigned_location.code }}</span>
-                    </p>
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="{% static 'images/swahilipot_logo.png' %}" alt="SwahiliPot Logo" style="height: 50px; margin-right: 15px;">
+                        <div>
+                            <h1 class="mb-0">
+                                <i class="fas fa-users"></i> Visitor Management
+                            </h1>
+                            <p class="mb-0">
+                                <span class="badge bg-info">{{ user.assigned_location.name }}</span>
+                                <span class="badge bg-primary ms-2">{{ user.assigned_location.code }}</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-4 text-end">
                     <a href="{% url 'visitor:check_in' %}" class="btn btn-success">
@@ -80,25 +86,25 @@
                         <h5 class="card-title">
                             <i class="fas fa-bolt text-warning"></i> Quick Actions
                         </h5>
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <a href="{% url 'visitor:check_in' %}" class="btn btn-primary w-100">
-                                    <i class="fas fa-sign-in-alt"></i> Check-In
+                        <div class="row g-3">
+                            <div class="col-md-3 col-6">
+                                <a href="{% url 'visitor:check_in' %}" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Check-In
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{% url 'visitor:visitor_create' %}" class="btn btn-outline-primary w-100">
-                                    <i class="fas fa-user-plus"></i> New Visitor
+                            <div class="col-md-3 col-6">
+                                <a href="{% url 'visitor:visitor_create' %}" class="btn btn-outline-primary w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-user-plus me-2"></i> New Visitor
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{% url 'visitor:visit_list' %}" class="btn btn-outline-secondary w-100">
-                                    <i class="fas fa-list"></i> All Visits
+                            <div class="col-md-3 col-6">
+                                <a href="{% url 'visitor:visit_list' %}" class="btn btn-outline-secondary w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-list me-2"></i> All Visits
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{% url 'visitor:visitor_list' %}" class="btn btn-outline-info w-100">
-                                    <i class="fas fa-users"></i> Visitors
+                            <div class="col-md-3 col-6">
+                                <a href="{% url 'visitor:visitor_list' %}" class="btn btn-outline-info w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-users me-2"></i> Visitors
                                 </a>
                             </div>
                         </div>

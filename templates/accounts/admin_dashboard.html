@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Admin Dashboard - POTPass{% endblock %}
 
@@ -8,10 +9,15 @@
         <div class="dashboard-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h1 class="mb-2">
-                        <i class="fas fa-user-shield"></i> Admin Dashboard
-                    </h1>
-                    <p class="mb-0">System administration and management</p>
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="{% static 'images/swahilipot_logo.png' %}" alt="SwahiliPot Logo" style="height: 50px; margin-right: 15px;">
+                        <div>
+                            <h1 class="mb-0">
+                                <i class="fas fa-user-shield"></i> Admin Dashboard
+                            </h1>
+                            <p class="mb-0">System administration and management</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-4 text-end">
                     <span class="badge bg-warning text-dark fs-6">
@@ -78,7 +84,7 @@
                             <h5 class="card-title mb-0">
                                 <i class="fas fa-users text-primary"></i> Recent Users
                             </h5>
-                            <a href="{% url 'admin:index' %}" class="btn btn-sm btn-outline-primary">
+                            <a href="/admin/accounts/customuser/add/" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-plus"></i> Add User
                             </a>
                         </div>
@@ -184,15 +190,15 @@
                             <a href="{% url 'admin:index' %}" class="btn btn-primary">
                                 <i class="fas fa-cog"></i> Django Admin
                             </a>
-                            <a href="{% url 'admin:auth_user_add' %}" class="btn btn-success">
+                            <a href="/admin/accounts/customuser/add/" class="btn btn-success">
                                 <i class="fas fa-user-plus"></i> Add New User
                             </a>
-                            <a href="{% url 'admin:core_location_add' %}" class="btn btn-info">
+                            <a href="/admin/core/location/add/" class="btn btn-info">
                                 <i class="fas fa-map-marker-alt"></i> Add Location
                             </a>
-                            <button class="btn btn-outline-secondary" onclick="exportData()">
+                            <a href="/admin/" class="btn btn-outline-secondary">
                                 <i class="fas fa-download"></i> Export Data
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
