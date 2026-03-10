@@ -1,1 +1,1 @@
-IT doesnt concern U
+It doesnt concern U
