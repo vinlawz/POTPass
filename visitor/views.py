@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, Sum, Avg, Min, Max, F
+from django.db.models import Q, Count, Sum, Avg, Min, Max, F, ExpressionWrapper
 from django.db.models.functions import Extract, ExtractDay
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
@@ -253,7 +253,8 @@ def visitor_list_view(request):
             visitors = visitors.filter(id_number__icontains=query)
     
     # Add annotations for visitor statistics
-    from django.db.models import Count, Q
+    from django.db.models import Count, Q, Avg, F
+    from django.db.models.functions import Cast
     visitors = visitors.annotate(
         total_visits=Count('visits', filter=Q(visits__location=request.user.assigned_location))
     ).order_by('-total_visits')
@@ -407,15 +408,26 @@ def reports_view(request):
         status='COMPLETED',
         check_out_time__isnull=False
     )
-    avg_duration_minutes = completed_with_duration.aggregate(
-        avg_duration=Avg(
-            (F('check_out_time') - F('check_in_time')) / 60 * 60
-        )
-    )['avg_duration__avg'] or 0
+    
+    # Calculate average duration in minutes using raw SQL
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT AVG(
+                (julianday(check_out_time) - julianday(check_in_time)) * 24 * 60
+            ) as avg_duration_minutes
+            FROM visitor_visit 
+            WHERE status = 'COMPLETED' 
+            AND check_out_time IS NOT NULL
+            AND location_id = %s
+        """, [request.user.assigned_location.id])
+        result = cursor.fetchone()
+        avg_duration_minutes = result[0] if result and result[0] is not None else 0
     
     # Peak hours analysis
+    from django.db.models.functions import ExtractHour
     peak_hour_data = visits.annotate(
-        hour=Extract('hour', 'check_in_time')
+        hour=ExtractHour('check_in_time')
     ).values('hour').annotate(
         visit_count=Count('id')
     ).order_by('-visit_count')[:5]

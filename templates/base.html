@@ -8,6 +8,9 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -319,6 +322,147 @@
                 padding: 1rem;
             }
         }
+
+        /* Footer Styles */
+        .footer {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            padding: 60px 0 20px;
+            margin-top: auto;
+        }
+
+        .footer-section h4 {
+            color: #ffffff;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .footer-title {
+            color: #ffffff;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .footer-text {
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #ffffff;
+        }
+
+        .footer-contact {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-contact li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .footer-contact i {
+            color: #60a5fa;
+            margin-right: 12px;
+            margin-top: 3px;
+            width: 16px;
+        }
+
+        .footer-contact span {
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .social-link:hover {
+            background: #60a5fa;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+            padding-top: 30px;
+        }
+
+        .copyright {
+            color: #94a3b8;
+        }
+
+        .swahilipot-link {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .swahilipot-link:hover {
+            color: #ffffff;
+        }
+
+        .footer-bottom-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-bottom-links a:hover {
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 40px 0 20px;
+            }
+            
+            .footer-section {
+                margin-bottom: 30px;
+            }
+            
+            .social-links {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -433,9 +577,114 @@
     {% endblock %}
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer mt-5">
         <div class="container">
-            <p>&copy; 2024 POTPass Management System. Built with ❤️ for SwahiliPot Community.</p>
+            <div class="row">
+                <!-- About Section -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-section">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="{% static 'images/swahilipot_logo.png' %}" alt="SwahiliPot Logo" style="height: 40px; margin-right: 10px;">
+                            <h4 class="mb-0">POTPass</h4>
+                        </div>
+                        <p class="footer-text">
+                            A visitor management system empowering SwahiliPot Hub Foundation to efficiently manage visitors, 
+                            enhance security, and streamline operations across our technology and arts programs.
+                        </p>
+                        <div class="social-links">
+                            <a href="https://www.swahilipothub.co.ke" target="_blank" class="social-link" title="SwahiliPot Hub">
+                                <i class="fas fa-globe"></i>
+                            </a>
+                            <a href="https://twitter.com/swahilipothub" target="_blank" class="social-link" title="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="https://facebook.com/swahilipothub" target="_blank" class="social-link" title="Facebook">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <a href="https://instagram.com/swahilipothub" target="_blank" class="social-link" title="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://linkedin.com/company/swahilipot-hub" target="_blank" class="social-link" title="LinkedIn">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="footer-section">
+                        <h5 class="footer-title">Quick Links</h5>
+                        <ul class="footer-links">
+                            <li><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
+                            <li><a href="{% url 'visitor:visitor_list' %}">Visitors</a></li>
+                            <li><a href="{% url 'visitor:visit_list' %}">Visits</a></li>
+                            <li><a href="{% url 'core:location_list' %}">Locations</a></li>
+                            <li><a href="{% url 'visitor:reports' %}">Reports</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- SwahiliPot Hub -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="footer-section">
+                        <h5 class="footer-title">SwahiliPot Hub</h5>
+                        <ul class="footer-links">
+                            <li><a href="https://www.swahilipothub.co.ke/about" target="_blank">About Us</a></li>
+                            <li><a href="https://www.swahilipothub.co.ke/programs" target="_blank">Programs</a></li>
+                            <li><a href="https://www.swahilipothub.co.ke/events" target="_blank">Events</a></li>
+                            <li><a href="https://www.swahilipothub.co.ke/blog" target="_blank">Blog</a></li>
+                            <li><a href="https://www.swahilipothub.co.ke/contact" target="_blank">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="footer-section">
+                        <h5 class="footer-title">Contact Info</h5>
+                        <ul class="footer-contact">
+                            <li>
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>SwahiliPot Hub Foundation<br>Mombasa, Kenya</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-phone"></i>
+                                <span>+254 11 4635505</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-envelope"></i>
+                                <span>info@swahilipothub.co.ke</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-clock"></i>
+                                <span>Mon-Fri: 9:00 AM - 6:00 PM</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-0 copyright">
+                            &copy; 2024 POTPass Management System. Powered by 
+                            <a href="https://www.swahilipothub.co.ke" target="_blank" class="swahilipot-link">
+                                SwahiliPot Hub Foundation
+                            </a>
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-0 footer-bottom-links">
+                            <a href="#" class="me-3">Privacy Policy</a>
+                            <a href="#" class="me-3">Terms of Service</a>
+                            <a href="#">Cookie Policy</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
